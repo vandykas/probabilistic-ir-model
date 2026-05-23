@@ -1,5 +1,4 @@
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class BIM {
     private final Map<String, Map<Integer, Integer>> invertedIndex;
@@ -10,9 +9,14 @@ public class BIM {
         this.documentCount = documentCount;
     }
 
-    public Map<Integer, Double> rankDocuments(String[] queryTerm) {
+    public List<SearchResult> rankDocuments(String[] queryTerm) {
         Map<Integer, Double> documentsScore = calculateDocumentsRSV(queryTerm);
-        return documentsScore;
+        List<SearchResult> documentRanking = new ArrayList<>();
+        for (Map.Entry<Integer, Double> entry : documentsScore.entrySet()) {
+            documentRanking.add(new SearchResult(entry.getKey(), entry.getValue()));
+        }
+        Collections.sort(documentRanking);
+        return documentRanking;
     }
 
     private Map<Integer, Double> calculateDocumentsRSV(String[] queryTerm) {
