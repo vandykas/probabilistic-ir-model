@@ -9,7 +9,7 @@ public class BIM {
         this.documentCount = documentCount;
     }
 
-    public List<SearchResult> rankDocuments(String[] queryTerm) {
+    public List<SearchResult> rankDocuments(ArrayList<String> queryTerm) {
         Map<Integer, Double> documentsScore = calculateDocumentsRSV(queryTerm);
         List<SearchResult> documentRanking = new ArrayList<>();
         for (Map.Entry<Integer, Double> entry : documentsScore.entrySet()) {
@@ -19,9 +19,13 @@ public class BIM {
         return documentRanking;
     }
 
-    private Map<Integer, Double> calculateDocumentsRSV(String[] queryTerm) {
+    private Map<Integer, Double> calculateDocumentsRSV(ArrayList<String> queryTerm) {
         Map<Integer, Double> documentsScore = new HashMap<>();
         for (String term : queryTerm) {
+            if (!invertedIndex.containsKey(term)) {
+                continue;
+            }
+
             for (Map.Entry<Integer, Integer> entry : invertedIndex.get(term).entrySet()) {
                 int docId = entry.getKey();
                 int termFrequency = entry.getValue();

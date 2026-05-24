@@ -5,7 +5,7 @@ public class ProbabilisticRetrieval {
     private final BIM bimModel;
 
     public ProbabilisticRetrieval(InvertedIndex invertedIndex, int documentCount) {
-        this.textPreprocess = new TextPreprocess();
+        this.textPreprocess = TextPreprocess.getInstantiation();
         this.bimModel = new BIM(invertedIndex.getInvertedIndex(), documentCount);
     }
 

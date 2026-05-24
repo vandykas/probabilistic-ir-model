@@ -2,14 +2,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class InvertedIndex {
     private final Map<String, Map<Integer, Integer>> invertedIndex;
+    private final TextPreprocess textPreprocess;
 
     public InvertedIndex(int invertedIndexSize) {
         invertedIndex = new HashMap<>();
+        textPreprocess = TextPreprocess.getInstantiation();
         buildInvertedIndex(invertedIndexSize);
     }
 
@@ -18,14 +21,9 @@ public class InvertedIndex {
     }
 
     private void buildInvertedIndex(int invertedIndexSize) {
-        Stemmer stemmer = new Stemmer();
         for (int docId = 1; docId <= invertedIndexSize; docId++) {
             String content = readDocument(docId);
-
-            String[] tokens = content.split("[^a-z0-9]+");
-            for (int i = 0; i < tokens.length; i++) {
-                tokens[i] = stemmer.stem(tokens[i]);
-            }
+            ArrayList<String> tokens = textPreprocess.preprocess(content);
 
             for (String term : tokens) {
                 invertedIndex.putIfAbsent(term, new HashMap<>());
@@ -52,7 +50,7 @@ public class InvertedIndex {
                 System.out.println("Error " + e.getMessage());
             }
         }
-        return builder.toString().toLowerCase();
+        return builder.toString();
     }
 
     public void print() {
