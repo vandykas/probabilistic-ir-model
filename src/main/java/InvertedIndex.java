@@ -6,21 +6,25 @@ import java.util.*;
 
 public class InvertedIndex {
     private final Map<String, Map<Integer, Integer>> invertedIndex;
-    private final Map<String, Integer> documentFrequency;
+    private final Map<String, Integer> documentsFrequency;
     private final int[] documentsLength;
     private double documentsAvgLength;
     private final TextPreprocess textPreprocess;
 
     public InvertedIndex(int invertedIndexSize) {
         this.invertedIndex = new HashMap<>();
-        this.documentFrequency = new HashMap<>();
+        this.documentsFrequency = new HashMap<>();
         this.textPreprocess = TextPreprocess.getInstantiation();
         this.documentsLength = new int[invertedIndexSize + 1];
         buildInvertedIndex(invertedIndexSize);
     }
 
     public Map<String, Map<Integer, Integer>> getInvertedIndex() {
-        return invertedIndex;
+        return this.invertedIndex;
+    }
+
+    public Map<String, Integer> getDocumentsFrequency() {
+        return this.documentsFrequency;
     }
 
     private void buildInvertedIndex(int invertedIndexSize) {
@@ -37,7 +41,7 @@ public class InvertedIndex {
                 invertedIndex.putIfAbsent(term, new HashMap<>());
                 invertedIndex.get(term).put(docId, invertedIndex.get(term).getOrDefault(docId, 0) + 1);
                 if (!uniqueTokens.contains(term)) {
-                    documentFrequency.put(term, documentFrequency.getOrDefault(term, 0) + 1);
+                    documentsFrequency.put(term, documentsFrequency.getOrDefault(term, 0) + 1);
                     uniqueTokens.add(term);
                 }
             }

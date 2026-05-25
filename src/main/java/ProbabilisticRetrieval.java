@@ -7,7 +7,7 @@ public class ProbabilisticRetrieval {
 
     public ProbabilisticRetrieval(InvertedIndex invertedIndex, int documentCount) {
         this.textPreprocess = TextPreprocess.getInstantiation();
-        this.bimModel = new BIM(invertedIndex.getInvertedIndex(), documentCount);
+        this.bimModel = new BIM(invertedIndex.getInvertedIndex(), invertedIndex.getDocumentsFrequency(), documentCount);
     }
 
     public List<SearchResult> retrieveWithBIM(String query) {
