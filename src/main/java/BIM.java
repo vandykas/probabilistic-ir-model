@@ -1,11 +1,17 @@
-import java.util.*;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BIM {
     private final Map<String, Map<Integer, Integer>> invertedIndex;
+    private final Map<String, Integer> documentFrequency;
     private final int documentCount;
 
-    public BIM(Map<String, Map<Integer, Integer>> invertedIndex,  int documentCount) {
+    public BIM(Map<String, Map<Integer, Integer>> invertedIndex, Map<String, Integer> documentFrequency,  int documentCount) {
         this.invertedIndex = invertedIndex;
+        this.documentFrequency = documentFrequency;
         this.documentCount = documentCount;
     }
 
@@ -28,14 +34,14 @@ public class BIM {
 
             for (Map.Entry<Integer, Integer> entry : invertedIndex.get(term).entrySet()) {
                 int docId = entry.getKey();
-                int termFrequency = entry.getValue();
-                documentsScore.put(docId, documentsScore.getOrDefault(docId, 0.0) + calculateWeight(termFrequency));
+                int nt = documentFrequency.get(term);
+                documentsScore.put(docId, documentsScore.getOrDefault(docId, 0.0) + calculateWeight(nt));
             }
         }
         return documentsScore;
     }
 
-    private double calculateWeight(int termFrequency) {
-        return Math.log10(0.5 * documentCount / termFrequency);
+    private double calculateWeight(int nt) {
+        return Math.log10(0.5 * documentCount / nt);
     }
 }
