@@ -211,7 +211,7 @@ public class Stemmer {
     }
 
     private boolean endsWithDoubleConsonant() {
-        if (tempWordLen < 2 || !isVowel(tempWordLen - 1)) {
+        if (tempWordLen < 2 || !isConsonant(tempWordLen - 1)) {
             return false;
         }
         return buffer[tempWordLen - 1] == buffer[tempWordLen - 2];
