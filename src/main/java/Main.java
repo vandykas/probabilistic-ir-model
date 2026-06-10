@@ -7,7 +7,8 @@ public class Main {
         System.out.println("Enter the number of documents used (1 - 1400): ");
         int documentCount = Integer.parseInt(sc.nextLine());
 
-        InvertedIndex invertedIndex = new InvertedIndex(documentCount);
+        ReaderHelper reader = new ReaderHelper();
+        InvertedIndex invertedIndex = new InvertedIndex(documentCount, reader);
         ProbabilisticRetrieval retrieval = new ProbabilisticRetrieval(invertedIndex, documentCount);
         while (true) {
             System.out.println("Enter your query: ");

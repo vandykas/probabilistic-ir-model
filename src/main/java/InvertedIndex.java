@@ -1,8 +1,8 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class InvertedIndex {
     private final Map<String, Map<Integer, Integer>> invertedIndex;
@@ -10,12 +10,14 @@ public class InvertedIndex {
     private final int[] documentsLength;
     private double documentsAvgLength;
     private final TextPreprocess textPreprocess;
+    private final ReaderHelper reader;
 
-    public InvertedIndex(int invertedIndexSize) {
+    public InvertedIndex(int invertedIndexSize, ReaderHelper reader) {
         this.invertedIndex = new HashMap<>();
         this.documentsFrequency = new HashMap<>();
         this.textPreprocess = TextPreprocess.getInstantiation();
         this.documentsLength = new int[invertedIndexSize + 1];
+        this.reader = reader;
         buildInvertedIndex(invertedIndexSize);
     }
 
@@ -32,7 +34,7 @@ public class InvertedIndex {
         ArrayList<String> tokens;
         double documentLengthTotal = 0;
         for (int docId = 1; docId <= invertedIndexSize; docId++) {
-            String content = readDocument(docId);
+            String content = reader.readDocument(docId);
             tokens = textPreprocess.preprocess(content);
             documentsLength[docId] = tokens.size();
             documentLengthTotal += tokens.size();
@@ -48,22 +50,6 @@ public class InvertedIndex {
             uniqueTokens.clear();
         }
         this.documentsAvgLength = documentLengthTotal / invertedIndexSize;
-    }
-
-    private String readDocument(int docId) {
-        Path document = Path.of("src/main/resources/" + docId + ".txt");
-        StringBuilder builder = new StringBuilder();
-        if (Files.exists(document)) {
-            try (BufferedReader reader = Files.newBufferedReader(document)) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line);
-                }
-            } catch (IOException e) {
-                System.out.println("Error " + e.getMessage());
-            }
-        }
-        return builder.toString();
     }
 
     public void print() {
