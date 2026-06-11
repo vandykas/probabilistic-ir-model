@@ -1,3 +1,4 @@
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -5,19 +6,17 @@ import java.util.Map;
 import java.util.Set;
 
 public class InvertedIndex {
+    private final TextPreprocess textPreprocess;
     private final Map<String, Map<Integer, Integer>> invertedIndex;
     private final Map<String, Integer> documentsFrequency;
     private final int[] documentsLength;
     private double documentsAvgLength;
-    private final TextPreprocess textPreprocess;
-    private final ReaderHelper reader;
 
     public InvertedIndex(int invertedIndexSize, ReaderHelper reader) {
+        this.textPreprocess = TextPreprocess.getInstantiation();
         this.invertedIndex = new HashMap<>();
         this.documentsFrequency = new HashMap<>();
-        this.textPreprocess = TextPreprocess.getInstantiation();
         this.documentsLength = new int[invertedIndexSize + 1];
-        this.reader = reader;
         buildInvertedIndex(invertedIndexSize);
     }
 
@@ -32,6 +31,8 @@ public class InvertedIndex {
     private void buildInvertedIndex(int invertedIndexSize) {
         Set<String> uniqueTokens = new HashSet<>();
         ArrayList<String> tokens;
+        ReaderHelper reader = new ReaderHelper();
+
         double documentLengthTotal = 0;
         for (int docId = 1; docId <= invertedIndexSize; docId++) {
             String content = reader.readDocument(docId);
@@ -50,6 +51,14 @@ public class InvertedIndex {
             uniqueTokens.clear();
         }
         this.documentsAvgLength = documentLengthTotal / invertedIndexSize;
+    }
+
+    public boolean isContainsKey(String term) {
+        return this.invertedIndex.containsKey(term);
+    }
+
+    public Map<Integer, Integer> getPostingList(String term) {
+        return invertedIndex.get(term);
     }
 
     public void print() {

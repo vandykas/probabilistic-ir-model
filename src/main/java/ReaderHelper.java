@@ -48,10 +48,11 @@ public class ReaderHelper {
         Map<Integer, String> queries = new HashMap<>();
         Path document = Path.of("src/main/resources/cran.qry");
         StringBuilder builder = new StringBuilder();
+
+        int queryNumber = -1;
         if (Files.exists(document)) {
             try (BufferedReader reader = Files.newBufferedReader(document)) {
                 String line;
-                int queryNumber = -1;
                 while ((line = reader.readLine()) != null) {
                     if (line.startsWith(".I")) {
                         if (queryNumber != -1) {
@@ -68,6 +69,7 @@ public class ReaderHelper {
                 System.out.println("Error " + e.getMessage());
             }
         }
+        queries.put(queryNumber, builder.toString());
         return queries;
     }
 }
