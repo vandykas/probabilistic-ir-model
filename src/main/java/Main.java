@@ -61,7 +61,8 @@ public class Main {
 
         Map<String, ProbabilisticModel> probabilisticModels = new HashMap<>();
         probabilisticModels.put("BIM", new BIM(invertedIndex, corpus, new WeightWithRelevance(corpus, relevanceStats.R(), relevanceStats.relevantDocumentsTerm())));
-
+        probabilisticModels.put("BM25", new BM25(invertedIndex, corpus));
+        probabilisticModels.put("Two-Poisson", new TwoPoisson(invertedIndex, corpus));
         for (Map.Entry<String, ProbabilisticModel> entry : probabilisticModels.entrySet()) {
             String modelName = entry.getKey();
             ProbabilisticModel model = entry.getValue();
