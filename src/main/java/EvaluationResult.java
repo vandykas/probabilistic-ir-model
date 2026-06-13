@@ -7,6 +7,6 @@ public record EvaluationResult(
     public String toString() {
         return String.format(
                 ""
-        )
+        );
     }
 }

@@ -4,13 +4,11 @@ import java.util.List;
 import java.util.Map;
 
 public class BIM extends ProbabilisticModel {
-    private final Map<String, Integer> documentFrequency;
-    private final int documentCount;
+    private final WeightCalculator weightCalculator;
 
-    public BIM(InvertedIndex invertedIndex,  int documentCount) {
-        super(invertedIndex);
-        this.documentFrequency = invertedIndex.getDocumentsFrequency();
-        this.documentCount = documentCount;
+    public BIM(InvertedIndex invertedIndex, Corpus corpus, WeightCalculator weightCalculator) {
+        super(invertedIndex, corpus);
+        this.weightCalculator = weightCalculator;
     }
 
     @Override
@@ -27,20 +25,18 @@ public class BIM extends ProbabilisticModel {
     private Map<Integer, Double> calculateDocumentsRSV(ArrayList<String> queryTerm) {
         Map<Integer, Double> documentsScore = new HashMap<>();
         for (String term : queryTerm) {
-            if (!invertedIndex.isContainsKey(term)) {
+            if (!invertedIndex.isContainsTerm(term)) {
                 continue;
             }
 
             for (Map.Entry<Integer, Integer> entry : invertedIndex.getPostingList(term).entrySet()) {
                 int docId = entry.getKey();
-                int nt = documentFrequency.get(term);
-                documentsScore.put(docId, documentsScore.getOrDefault(docId, 0.0) + calculateWeight(nt));
+                documentsScore.put(
+                        docId,
+                        documentsScore.getOrDefault(docId, 0.0) + weightCalculator.calculateWeight(term)
+                );
             }
         }
         return documentsScore;
-    }
-
-    private double calculateWeight(int nt) {
-        return Math.log10(0.5 * documentCount / nt);
     }
 }

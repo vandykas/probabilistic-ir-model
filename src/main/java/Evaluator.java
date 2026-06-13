@@ -13,7 +13,7 @@ public class Evaluator {
     }
 
     public EvaluationResult evaluate(ProbabilisticModel model, int queryNum, String query) {
-        TextPreprocess textPreprocess = TextPreprocess.getInstantiation();
+        TextPreprocess textPreprocess = new TextPreprocess();
         List<SearchResult> documentsRank = model.rankDocuments(textPreprocess.preprocess(query));
 
         this.precisionRecallPoints = calculatePrecisionRecallPoints(queryNum, documentsRank);

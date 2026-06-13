@@ -1,64 +1,28 @@
-import java.io.Reader;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class InvertedIndex {
-    private final TextPreprocess textPreprocess;
     private final Map<String, Map<Integer, Integer>> invertedIndex;
-    private final Map<String, Integer> documentsFrequency;
-    private final int[] documentsLength;
-    private double documentsAvgLength;
 
-    public InvertedIndex(int invertedIndexSize, ReaderHelper reader) {
-        this.textPreprocess = TextPreprocess.getInstantiation();
+    public InvertedIndex() {
         this.invertedIndex = new HashMap<>();
-        this.documentsFrequency = new HashMap<>();
-        this.documentsLength = new int[invertedIndexSize + 1];
-        buildInvertedIndex(invertedIndexSize);
     }
 
     public Map<String, Map<Integer, Integer>> getInvertedIndex() {
         return this.invertedIndex;
     }
 
-    public Map<String, Integer> getDocumentsFrequency() {
-        return this.documentsFrequency;
-    }
-
-    private void buildInvertedIndex(int invertedIndexSize) {
-        Set<String> uniqueTokens = new HashSet<>();
-        ArrayList<String> tokens;
-        ReaderHelper reader = new ReaderHelper();
-
-        double documentLengthTotal = 0;
-        for (int docId = 1; docId <= invertedIndexSize; docId++) {
-            String content = reader.readDocument(docId);
-            tokens = textPreprocess.preprocess(content);
-            documentsLength[docId] = tokens.size();
-            documentLengthTotal += tokens.size();
-
-            for (String term : tokens) {
-                invertedIndex.putIfAbsent(term, new HashMap<>());
-                invertedIndex.get(term).put(docId, invertedIndex.get(term).getOrDefault(docId, 0) + 1);
-                if (!uniqueTokens.contains(term)) {
-                    documentsFrequency.put(term, documentsFrequency.getOrDefault(term, 0) + 1);
-                    uniqueTokens.add(term);
-                }
-            }
-            uniqueTokens.clear();
-        }
-        this.documentsAvgLength = documentLengthTotal / invertedIndexSize;
-    }
-
-    public boolean isContainsKey(String term) {
-        return this.invertedIndex.containsKey(term);
+    public void putDocument(String term, int docID) {
+        invertedIndex.putIfAbsent(term, new HashMap<>());
+        invertedIndex.get(term).put(docID, invertedIndex.get(term).getOrDefault(docID, 0) + 1);
     }
 
     public Map<Integer, Integer> getPostingList(String term) {
         return invertedIndex.get(term);
+    }
+
+    public boolean isContainsTerm(String term) {
+        return invertedIndex.containsKey(term);
     }
 
     public void print() {

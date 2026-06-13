@@ -7,18 +7,10 @@ import java.util.*;
 public class TextPreprocess {
     private final Stemmer stemmer;
     private final Set<String> stopWords;
-    private static TextPreprocess instantiation;
 
-    private TextPreprocess() {
+    public TextPreprocess() {
         this.stemmer = new Stemmer();
         this.stopWords = readStopWordsList();
-    }
-
-    public static TextPreprocess getInstantiation() {
-        if (instantiation == null) {
-            instantiation = new TextPreprocess();
-        }
-        return instantiation;
     }
 
     public Set<String> readStopWordsList() {
