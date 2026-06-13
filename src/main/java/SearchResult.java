@@ -1,11 +1,4 @@
-public class SearchResult implements Comparable<SearchResult> {
-    private final int docID;
-    private final double score;
-
-    public SearchResult(int docID, double score) {
-        this.docID = docID;
-        this.score = score;
-    }
+public record SearchResult(int docID, double score) implements Comparable<SearchResult> {
 
     @Override
     public int compareTo(SearchResult other) {
