@@ -4,11 +4,14 @@ import java.util.List;
 import java.util.Map;
 
 public class BM25 extends ProbabilisticModel {
+    private final WeightCalculator weightCalculator;
+
     private final double k = 1.5;
     private final double b = 0.75;
 
-    public BM25(InvertedIndex invertedIndex, Corpus corpus) {
+    public BM25(InvertedIndex invertedIndex, Corpus corpus, WeightCalculator weightCalculator) {
         super(invertedIndex, corpus);
+        this.weightCalculator = weightCalculator;
     }
 
     @Override
@@ -42,7 +45,8 @@ public class BM25 extends ProbabilisticModel {
     }
 
     private double calculateBM25Score(String term, int tf, int docId) {
-        double wt = calculateTermWeight(term);
+        double wt = weightCalculator.calculateWeight(term);
+
         double ld = corpus.getDocumentsLength()[docId];
         double avgdl = corpus.getDocumentsAvgLength();
 
@@ -50,12 +54,5 @@ public class BM25 extends ProbabilisticModel {
         double denominator = tf + k * ((ld / avgdl) * b + (1 - b));
 
         return numerator / denominator;
-    }
-
-    private double calculateTermWeight(String term) {
-        int n = corpus.getDocumentCount();
-        int df = corpus.getDocumentsFrequency().get(term);
-
-        return Math.log((n - df + 0.5) / (df + 0.5) + 1);
     }
 }

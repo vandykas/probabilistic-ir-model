@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -21,7 +22,7 @@ public class Main {
 
         while (true) {
             System.out.println("Use evaluation query (Y/N): ");
-            if (sc.nextLine().equals("Y")) {
+            if (sc.nextLine().equalsIgnoreCase("Y")) {
                 System.out.println("Number of query to used (1 - 225): ");
                 int queryCount = Integer.parseInt(sc.nextLine());
                 evaluateMode(reader, invertedIndex, queryCount);
@@ -40,7 +41,7 @@ public class Main {
         Map<Integer, String> queries = reader.readQueries();
         Evaluator evaluator = new Evaluator();
         for (Map.Entry<Integer, String> entry : queries.entrySet()) {
-            int queryNum =  entry.getKey();
+            int queryNum = entry.getKey();
             String query = entry.getValue();
         }
     }
@@ -51,18 +52,23 @@ public class Main {
             TextPreprocess textPreprocess,
             PseudoRelevanceFeedback pseudoRel,
             String query,
-            int k
-    ) {
+            int k) {
         RelevanceStats relevanceStats = pseudoRel.computeRelevanceStats(
                 new BIM(invertedIndex, corpus, new WeightWithoutRelevance(corpus)),
                 textPreprocess.preprocess(query),
-                k
-        );
+                k);
 
         Map<String, ProbabilisticModel> probabilisticModels = new HashMap<>();
-        probabilisticModels.put("BIM", new BIM(invertedIndex, corpus, new WeightWithRelevance(corpus, relevanceStats.R(), relevanceStats.relevantDocumentsTerm())));
-        probabilisticModels.put("BM25", new BM25(invertedIndex, corpus));
-        probabilisticModels.put("Two-Poisson", new TwoPoisson(invertedIndex, corpus));
+        probabilisticModels.put("BIM", new BIM(invertedIndex, corpus,
+                new WeightWithRelevance(corpus, relevanceStats.R(), relevanceStats.relevantDocumentsTerm())));
+        probabilisticModels.put("BM25", new BM25(
+                invertedIndex,corpus,
+                new WeightWithRelevance(corpus,relevanceStats.R(),relevanceStats.relevantDocumentsTerm())));
+
+        probabilisticModels.put("Two-Poisson", new TwoPoisson(
+                invertedIndex,
+                corpus,
+                new WeightWithRelevance(corpus,relevanceStats.R(),relevanceStats.relevantDocumentsTerm())));
         for (Map.Entry<String, ProbabilisticModel> entry : probabilisticModels.entrySet()) {
             String modelName = entry.getKey();
             ProbabilisticModel model = entry.getValue();
