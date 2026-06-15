@@ -54,7 +54,7 @@ public class Evaluator {
         List<PrecisionRecallPoint> elevenPoints = new ArrayList<>();
 
         for(int i = 0; i <= 10; i++){
-            double recallLevel = i/10.0;
+            double recallLevel = i / 10.0;
             double maxPrecision = 0.0;
 
             for(PrecisionRecallPoint point : precisionRecallPoints){
@@ -89,6 +89,10 @@ public class Evaluator {
 
     public double precision() {
         return precisionRecallPoints.getLast().precision();
+    }
+
+    public double recall() {
+        return precisionRecallPoints.getLast().recall();
     }
 
     public double precisionAtK(int k) {

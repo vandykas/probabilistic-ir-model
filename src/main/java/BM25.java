@@ -1,8 +1,3 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class BM25 extends ProbabilisticModel {
     private final WeightCalculator weightCalculator;
 
@@ -15,36 +10,7 @@ public class BM25 extends ProbabilisticModel {
     }
 
     @Override
-    public List<SearchResult> rankDocuments(ArrayList<String> queryTerms) {
-        Map<Integer, Double> documentsScore = new HashMap<>();
-
-        for (String term : queryTerms) {
-            if (!invertedIndex.isContainsTerm(term)) {
-                continue;
-            }
-
-            Map<Integer, Integer> postingList = invertedIndex.getPostingList(term);
-
-            for (Map.Entry<Integer, Integer> entry : postingList.entrySet()) {
-                int docId = entry.getKey();
-                int tf = entry.getValue();
-
-                double score = calculateBM25Score(term, tf, docId);
-                documentsScore.put(docId, documentsScore.getOrDefault(docId, 0.0) + score);
-            }
-        }
-
-        List<SearchResult> documentRanking = new ArrayList<>();
-
-        for (Map.Entry<Integer, Double> entry : documentsScore.entrySet()) {
-            documentRanking.add(new SearchResult(entry.getKey(), entry.getValue()));
-        }
-
-        sortDocumentsRank(documentRanking);
-        return documentRanking;
-    }
-
-    private double calculateBM25Score(String term, int tf, int docId) {
+    protected double calculateScore(String term, int tf, int docId) {
         double wt = weightCalculator.calculateWeight(term);
 
         double ld = corpus.getDocumentsLength()[docId];

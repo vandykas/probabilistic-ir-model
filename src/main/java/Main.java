@@ -1,7 +1,4 @@
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 
 public class Main {
@@ -18,7 +15,6 @@ public class Main {
 
         InvertedIndex invertedIndex = collectionData.invertedIndex();
         Corpus corpus = collectionData.corpus();
-        PseudoRelevanceFeedback pseudoRel = new PseudoRelevanceFeedback(invertedIndex);
 
         while (true) {
             System.out.println("Use evaluation query (Y/N): ");
@@ -31,9 +27,11 @@ public class Main {
 
             System.out.println("Enter your query: ");
             String query = sc.nextLine();
+            ArrayList<String> queryTerms = textPreprocess.preprocess(query);
+
             System.out.println("Enter top k documents: ");
             int k = Integer.parseInt(sc.nextLine());
-            normalMode(invertedIndex, corpus, textPreprocess, pseudoRel, query, k);
+            normalMode(invertedIndex, corpus, queryTerms, k);
         }
     }
 
@@ -49,39 +47,66 @@ public class Main {
     public static void normalMode(
             InvertedIndex invertedIndex,
             Corpus corpus,
-            TextPreprocess textPreprocess,
-            PseudoRelevanceFeedback pseudoRel,
-            String query,
+            ArrayList<String> queryTerms,
             int k) {
-        RelevanceStats relevanceStats = pseudoRel.computeRelevanceStats(
-                new BIM(invertedIndex, corpus, new WeightWithoutRelevance(corpus)),
-                textPreprocess.preprocess(query),
-                k);
+
+        PseudoRelevanceFeedback pseudoRel = new PseudoRelevanceFeedback(invertedIndex);
 
         Map<String, ProbabilisticModel> probabilisticModels = new HashMap<>();
-        probabilisticModels.put("BIM", new BIM(invertedIndex, corpus,
-                new WeightWithRelevance(corpus, relevanceStats.R(), relevanceStats.relevantDocumentsTerm())));
-        probabilisticModels.put("BM25", new BM25(
-                invertedIndex,corpus,
-                new WeightWithRelevance(corpus,relevanceStats.R(),relevanceStats.relevantDocumentsTerm())));
+        RelevanceStats relevanceStats = pseudoRel.computeRelevanceStats(
+                new BIM(invertedIndex, corpus, new WeightWithoutRelevance(corpus)),
+                queryTerms,
+                k
+        );
+        probabilisticModels.put(
+                "BIM",
+                new BIM(invertedIndex, corpus, new WeightWithRelevance(corpus, relevanceStats.R(), relevanceStats.relevantDocumentsTerm()))
+        );
 
-        probabilisticModels.put("Two-Poisson", new TwoPoisson(
-                invertedIndex,
-                corpus,
-                new WeightWithRelevance(corpus,relevanceStats.R(),relevanceStats.relevantDocumentsTerm())));
+        relevanceStats = pseudoRel.computeRelevanceStats(
+                new BM25(invertedIndex, corpus, new WeightWithoutRelevance(corpus)),
+                queryTerms,
+                k
+        );
+        probabilisticModels.put(
+                "BM25",
+                new BM25(invertedIndex,corpus, new WeightWithRelevance(corpus,relevanceStats.R(),relevanceStats.relevantDocumentsTerm()))
+        );
+
+        relevanceStats = pseudoRel.computeRelevanceStats(
+                new TwoPoisson(invertedIndex, corpus, new WeightWithoutRelevance(corpus)),
+                queryTerms,
+                k
+        );
+        probabilisticModels.put(
+                "Two-Poisson",
+                new TwoPoisson(invertedIndex, corpus, new WeightWithRelevance(corpus,relevanceStats.R(),relevanceStats.relevantDocumentsTerm()))
+        );
+
+        relevanceStats = pseudoRel.computeRelevanceStats(
+                new BM11(invertedIndex, corpus, new WeightWithoutRelevance(corpus)),
+                queryTerms,
+                k
+        );
+        probabilisticModels.put(
+                "BM11",
+                new BM11(invertedIndex, corpus, new WeightWithRelevance(corpus,relevanceStats.R(),relevanceStats.relevantDocumentsTerm()))
+        );
+
         for (Map.Entry<String, ProbabilisticModel> entry : probabilisticModels.entrySet()) {
             String modelName = entry.getKey();
             ProbabilisticModel model = entry.getValue();
-            List<SearchResult> documentsRank = model.rankDocuments(textPreprocess.preprocess(query));
+            List<SearchResult> documentsRank = model.rankDocuments(queryTerms);
 
             printRanking(modelName, documentsRank);
         }
     }
 
     public static void printRanking(String modelName, List<SearchResult> documentsRank) {
-        System.out.println("Ranking for " + modelName + ":");
+        System.out.println("== Ranking for " + modelName + " ==");
         for (SearchResult searchResult : documentsRank) {
             System.out.println(searchResult);
         }
+        System.out.println();
     }
 }
