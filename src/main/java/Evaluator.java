@@ -1,4 +1,3 @@
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,13 +19,15 @@ public class Evaluator {
         return new EvaluationResult(
             precision(),
             precisionAtK(5),
-                0
+            elevenPointAveragePrecision()
         );
     }
 
     private List<PrecisionRecallPoint> calculatePrecisionRecallPoints(int queryNum, List<SearchResult> documentsRank) {
-        List<PrecisionRecallPoint> precisionRecallPoints = new ArrayList<>();
+        List<PrecisionRecallPoint> points = new ArrayList<>();
         int curTotalDoc = 0, curRelevantDoc = 0;
+        int totalRelevantDoc = relevantDocuments.get(queryNum).size();
+
         for (SearchResult searchResult : documentsRank) {
             int docID = searchResult.docID();
 
@@ -35,15 +36,55 @@ public class Evaluator {
                 curRelevantDoc++;
             }
 
-            precisionRecallPoints.add(
+            double precision = (double)curRelevantDoc / curTotalDoc;
+            double recall = (double) curRelevantDoc / totalRelevantDoc;
+            points.add(
                     new PrecisionRecallPoint(
-                            docID,
-                            (double) curRelevantDoc / curTotalDoc,
-                            curTotalDoc
+                            curTotalDoc,
+                            precision,
+                            recall,
+                            docID
                     )
             );
         }
-        return precisionRecallPoints;
+        return points;
+    }
+
+    private List<PrecisionRecallPoint> calculate11PointPrecision(){
+        List<PrecisionRecallPoint> elevenPoints = new ArrayList<>();
+
+        for(int i = 0; i <= 10; i++){
+            double recallLevel = i/10.0;
+            double maxPrecision = 0.0;
+
+            for(PrecisionRecallPoint point : precisionRecallPoints){
+                if(point.recall() >= recallLevel){
+                    maxPrecision = Math.max(maxPrecision, point.precision());
+                }
+            }
+
+            elevenPoints.add(
+                new PrecisionRecallPoint(
+                    i,
+                    maxPrecision,
+                    recallLevel,
+                    -1
+                )
+            );
+        }
+
+        return elevenPoints;
+    }
+
+    public double elevenPointAveragePrecision(){
+        List<PrecisionRecallPoint> elevenPoints = calculate11PointPrecision();
+
+        double sum = 0.0;
+        for(PrecisionRecallPoint point : elevenPoints){
+            sum += point.precision();
+        }
+
+        return sum/11.0;
     }
 
     public double precision() {
@@ -51,6 +92,10 @@ public class Evaluator {
     }
 
     public double precisionAtK(int k) {
+        if(precisionRecallPoints.size() < k){
+            return precisionRecallPoints.getLast().precision();
+        }
+
         return precisionRecallPoints.get(k - 1).precision();
     }
 }

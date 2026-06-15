@@ -1,5 +1,6 @@
 public record PrecisionRecallPoint(
         int rank,
         double precision,
-        double recall
+        double recall,
+        int docID
 ) {}
