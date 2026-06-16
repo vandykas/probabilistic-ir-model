@@ -17,7 +17,7 @@ public class BM25 extends ProbabilisticModel {
         double avgdl = corpus.getDocumentsAvgLength();
 
         double numerator = tf * (k + 1) * wt;
-        double denominator = tf + k * ((ld / avgdl) * b + (1 - b));
+        double denominator = tf + k * (ld / avgdl) * b + k * (1 - b);
 
         return numerator / denominator;
     }

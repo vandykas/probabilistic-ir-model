@@ -8,17 +8,13 @@ public class InvertedIndex {
         this.invertedIndex = new HashMap<>();
     }
 
-    public Map<String, Map<Integer, Integer>> getInvertedIndex() {
-        return this.invertedIndex;
-    }
-
     public void putDocument(String term, int docID) {
         invertedIndex.putIfAbsent(term, new HashMap<>());
         invertedIndex.get(term).put(docID, invertedIndex.get(term).getOrDefault(docID, 0) + 1);
     }
 
     public Map<Integer, Integer> getPostingList(String term) {
-        return invertedIndex.get(term);
+        return invertedIndex.getOrDefault(term, new HashMap<>());
     }
 
     public boolean isContainsTerm(String term) {
