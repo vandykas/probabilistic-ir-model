@@ -8,17 +8,16 @@ public class Evaluator {
     private List<PrecisionRecallPoint> precisionRecallPoints;
 
     public Evaluator() {
-        this.relevantDocuments = new ReaderHelper().readRelevantDocument();
+        this.relevantDocuments = new ReaderHelper().readRelevantDocuments();
     }
 
-    public EvaluationResult evaluate(ProbabilisticModel model, int queryNum, String query) {
-        TextPreprocess textPreprocess = new TextPreprocess();
-        List<SearchResult> documentsRank = model.rankDocuments(textPreprocess.preprocess(query));
-
+    public EvaluationResult evaluate(ProbabilisticModel model, ArrayList<String> queryTerms, int queryNum) {
+        List<SearchResult> documentsRank = model.rankDocuments(queryTerms);
         this.precisionRecallPoints = calculatePrecisionRecallPoints(queryNum, documentsRank);
         return new EvaluationResult(
             precision(),
-            precisionAtK(5),
+            recall(),
+            precisionAtK(15),
             elevenPointAveragePrecision()
         );
     }
@@ -36,7 +35,7 @@ public class Evaluator {
                 curRelevantDoc++;
             }
 
-            double precision = (double)curRelevantDoc / curTotalDoc;
+            double precision = (double) curRelevantDoc / curTotalDoc;
             double recall = (double) curRelevantDoc / totalRelevantDoc;
             points.add(
                     new PrecisionRecallPoint(
@@ -54,7 +53,7 @@ public class Evaluator {
         List<PrecisionRecallPoint> elevenPoints = new ArrayList<>();
 
         for(int i = 0; i <= 10; i++){
-            double recallLevel = i/10.0;
+            double recallLevel = i / 10.0;
             double maxPrecision = 0.0;
 
             for(PrecisionRecallPoint point : precisionRecallPoints){
@@ -76,7 +75,7 @@ public class Evaluator {
         return elevenPoints;
     }
 
-    public double elevenPointAveragePrecision(){
+    private double elevenPointAveragePrecision(){
         List<PrecisionRecallPoint> elevenPoints = calculate11PointPrecision();
 
         double sum = 0.0;
@@ -87,11 +86,25 @@ public class Evaluator {
         return sum/11.0;
     }
 
-    public double precision() {
+    private double precision() {
+        if (precisionRecallPoints.isEmpty()) {
+            return 0.0;
+        }
         return precisionRecallPoints.getLast().precision();
     }
 
-    public double precisionAtK(int k) {
+    private double recall() {
+        if (precisionRecallPoints.isEmpty()) {
+            return 0.0;
+        }
+        return precisionRecallPoints.getLast().recall();
+    }
+
+    private double precisionAtK(int k) {
+        if (precisionRecallPoints.isEmpty()) {
+            return 0.0;
+        }
+
         if(precisionRecallPoints.size() < k){
             return precisionRecallPoints.getLast().precision();
         }

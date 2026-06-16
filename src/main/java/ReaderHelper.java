@@ -24,9 +24,9 @@ public class ReaderHelper {
         return builder.toString();
     }
 
-    public Map<Integer, Set<Integer>> readRelevantDocument() {
+    public Map<Integer, Set<Integer>> readRelevantDocuments() {
         Map<Integer, Set<Integer>> relevantDocuments = new HashMap<>();
-        Path document = Path.of("src/main/resources/cranqrel.txt");
+        Path document = Path.of("src/main/resources/cranqrel");
         if (Files.exists(document)) {
             try (BufferedReader reader = Files.newBufferedReader(document)) {
                 String line;
