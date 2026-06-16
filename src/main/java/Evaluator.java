@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Evaluator {
     private final Map<Integer, Set<Integer>> relevantDocuments;
@@ -17,7 +14,7 @@ public class Evaluator {
         return new EvaluationResult(
             precision(),
             recall(),
-            precisionAtK(15),
+            precisionAtK(20),
             elevenPointAveragePrecision()
         );
     }
@@ -25,18 +22,19 @@ public class Evaluator {
     private List<PrecisionRecallPoint> calculatePrecisionRecallPoints(int queryNum, List<SearchResult> documentsRank) {
         List<PrecisionRecallPoint> points = new ArrayList<>();
         int curTotalDoc = 0, curRelevantDoc = 0;
-        int totalRelevantDoc = relevantDocuments.get(queryNum).size();
+        Set<Integer> relevantDocs = relevantDocuments.getOrDefault(queryNum, new HashSet<>());
+        int totalRelevantDoc = relevantDocs.size();
 
         for (SearchResult searchResult : documentsRank) {
             int docID = searchResult.docID();
 
             curTotalDoc++;
-            if (relevantDocuments.get(queryNum).contains(docID)) {
+            if (relevantDocs.contains(docID)) {
                 curRelevantDoc++;
             }
 
             double precision = (double) curRelevantDoc / curTotalDoc;
-            double recall = (double) curRelevantDoc / totalRelevantDoc;
+            double recall = (totalRelevantDoc == 0) ? 0 : (double) curRelevantDoc / totalRelevantDoc;
             points.add(
                     new PrecisionRecallPoint(
                             curTotalDoc,
