@@ -12,7 +12,7 @@ public abstract class ProbabilisticModel {
     public List<SearchResult> rankDocuments(ArrayList<String> queryTerms) {
         Map<Integer, Double> documentsScore = new HashMap<>();
 
-        for (String term : queryTerms) {
+        for (String term : queryTerms.stream().distinct().toList()) {
             if (!invertedIndex.isContainsTerm(term)) {
                 continue;
             }
@@ -36,7 +36,6 @@ public abstract class ProbabilisticModel {
 
         sortDocumentsRank(documentRanking);
         return documentRanking;
-
     }
 
     protected abstract double calculateScore(String term, int tf, int docId);

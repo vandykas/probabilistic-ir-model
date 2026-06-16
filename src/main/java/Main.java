@@ -4,8 +4,7 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        System.out.println("Enter the number of documents used (1 - 1400): ");
-        int documentCount = Integer.parseInt(sc.nextLine());
+        int documentCount = 1400;
 
         ReaderHelper reader = new ReaderHelper();
         TextPreprocess textPreprocess = new TextPreprocess();
